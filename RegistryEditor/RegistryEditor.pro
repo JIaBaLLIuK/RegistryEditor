@@ -9,13 +9,21 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    src/CreateGroupWindow.cpp \
+    src/CreateKeyWindow.cpp \
     src/MainWindow.cpp \
+    src/Registry.cpp \
     src/main.cpp
 
 HEADERS += \
-    include/MainWindow.h
+    include/CreateGroupWindow.h \
+    include/CreateKeyWindow.h \
+    include/MainWindow.h \
+    include/Registry.h
 
 FORMS += \
+    CreateGroupWindow.ui \
+    CreateKeyWindow.ui \
     mainwindow.ui
 
 # Default rules for deployment.

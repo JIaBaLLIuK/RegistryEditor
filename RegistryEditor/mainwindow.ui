@@ -13,9 +13,100 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar"/>
-  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="QLineEdit" name="currentPath"/>
+    </item>
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QTreeWidget" name="registryTree">
+        <property name="minimumSize">
+         <size>
+          <width>350</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="headerHidden">
+         <bool>true</bool>
+        </property>
+        <column>
+         <property name="text">
+          <string notr="true">1</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableWidget" name="groupKeys">
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <widget class="QMenu" name="menuCreate">
+     <property name="title">
+      <string>Create</string>
+     </property>
+     <addaction name="createKeyAction"/>
+     <addaction name="createGroupAction"/>
+    </widget>
+    <widget class="QMenu" name="menuRemove">
+     <property name="title">
+      <string>Remove</string>
+     </property>
+     <addaction name="removeKeyAction"/>
+     <addaction name="removeGroupAction"/>
+    </widget>
+    <addaction name="menuCreate"/>
+    <addaction name="menuRemove"/>
+   </widget>
+   <addaction name="menuEdit"/>
+  </widget>
+  <action name="removeKeyAction">
+   <property name="text">
+    <string>Key</string>
+   </property>
+  </action>
+  <action name="removeGroupAction">
+   <property name="text">
+    <string>Group</string>
+   </property>
+  </action>
+  <action name="createKeyAction">
+   <property name="text">
+    <string>Key</string>
+   </property>
+  </action>
+  <action name="createGroupAction">
+   <property name="text">
+    <string>Group</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>
