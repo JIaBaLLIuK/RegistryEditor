@@ -33,7 +33,8 @@ private:
     void ConfigureCurrentPathWidget(QString path = "");
     void ConfigureCreateButtons(QString path = "");
     void ConfigureRemoveKeyButton(QTableWidgetItem* currentItem = nullptr);
-    void CreateRegistryBranch(QString);
+    QTreeWidgetItem* CreateRegistryBranch(QString);
+    void RedrawRegistryBranch(QString);
 
     Ui::MainWindow *ui;
     Registry registry;

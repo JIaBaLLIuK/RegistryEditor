@@ -33,7 +33,6 @@ void CreateGroupWindow::on_okButton_clicked()
     if (groupName.isEmpty())
     {
         QMessageBox::critical(this, "Error!", "Group name can't be empty!");
-        return;
     }
 
     auto pathElements = currentPath.split("\\");

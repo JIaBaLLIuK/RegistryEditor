@@ -89,7 +89,7 @@ void MainWindow::ConfigureRemoveKeyButton(QTableWidgetItem *currentItem)
     }
 }
 
-void MainWindow::CreateRegistryBranch(QString groupName)
+QTreeWidgetItem* MainWindow::CreateRegistryBranch(QString groupName)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << groupName);
     QIcon icon(":/img/group_icon.ico");
@@ -97,6 +97,19 @@ void MainWindow::CreateRegistryBranch(QString groupName)
     ui->registryTree->topLevelItem(0)->addChild(item);
     QSettings settings(groupName, QSettings::NativeFormat);
     registry.ParseRegistryBranch(item, &settings, &icon);
+    return item;
+}
+
+void MainWindow::RedrawRegistryBranch(QString baseGroupName)
+{
+    for (int i = 0; i < ui->registryTree->topLevelItem(0)->childCount(); i++)
+    {
+        if (ui->registryTree->topLevelItem(0)->child(i)->text(0) == baseGroupName)
+        {
+            ui->registryTree->topLevelItem(0)->takeChild(i);
+            ui->registryTree->topLevelItem(0)->addChild(CreateRegistryBranch(baseGroupName));
+        }
+    }
 }
 
 void MainWindow::on_registryTree_itemExpanded(QTreeWidgetItem *group)
@@ -133,6 +146,8 @@ void MainWindow::on_registryTree_itemClicked(QTreeWidgetItem *item, int column)
         iterator++;
         rowIndex++;
     }
+
+    on_registryTree_itemExpanded(item);
 }
 
 void MainWindow::on_currentPath_returnPressed()
@@ -145,7 +160,7 @@ void MainWindow::on_currentPath_returnPressed()
     }
 
     ui->registryTree->setCurrentItem(group);
-    emit(ui->registryTree->itemClicked(group, 0));
+    emit ui->registryTree->itemClicked(group, 0);
 }
 
 void MainWindow::on_createKeyAction_triggered()
@@ -183,19 +198,19 @@ void MainWindow::on_createGroupAction_triggered()
     CreateGroupWindow createGroupWindow(registry.FindPathForGroup(ui->registryTree->currentItem()), this);
     createGroupWindow.show();
     createGroupWindow.exec();
-//    auto pathElements = ui->currentPath->text().split("\\");
-//    CreateRegistryBranch(pathElements[1]);
-//    auto currentPath = ui->currentPath->text() + "\\" + createGroupWindow.GetGroupName();
-//    ui->currentPath->setText(currentPath);
-//    auto* group = registry.FindGroupByPath(currentPath, ui->registryTree->topLevelItem(0));
-//    ui->registryTree->setCurrentItem(group);
-//    emit(ui->registryTree->itemClicked(group, 0));
+    auto createdGroupName = createGroupWindow.GetGroupName();
+    if (createdGroupName.isEmpty())
+    {
+        return;
+    }
 
-    /*
-    при создании раздела открывать его, менять путь в меню поиска
-    */
+    auto currentPath = ui->currentPath->text();
+    currentPath += "\\" + createGroupWindow.GetGroupName();
+    ui->currentPath->setText(currentPath);
 
-    on_registryTree_itemExpanded(ui->registryTree->currentItem());
+    RedrawRegistryBranch(currentPath.split("\\")[1]);  // передача первого элемента списка (HKEY_...)
+
+    on_currentPath_returnPressed();
 }
 
 
@@ -212,22 +227,6 @@ void MainWindow::on_removeGroupAction_triggered()
         QMessageBox::warning(this, "Warning!", "Coludn't delete this group!");
         return;
     }
-
-    currentPathElements.pop_back();
-    currentPathElements.push_front(baseGroupName);
-    currentPathElements.push_front("Computer");
-    for (int i = 0; i < ui->registryTree->topLevelItem(0)->childCount(); i++)
-    {
-        auto baseGroup = ui->registryTree->topLevelItem(0)->child(i);
-        if (baseGroup->text(0) == baseGroupName)
-        {
-            delete baseGroup;
-            CreateRegistryBranch(baseGroupName);
-            break;
-        }
-    }
-
-    ui->currentPath->setText(currentPathElements.join("\\"));
 
     /*
     при удалении раздела открыть родительский раздел
