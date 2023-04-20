@@ -194,10 +194,12 @@ void MainWindow::on_createGroupAction_triggered()
         return;
     }
 
-    auto currentPath = ui->currentPath->text();
+    //auto currentPath = ui->currentPath->text();
     CreateRegistryBranch(createdGroupName, ui->registryTree->currentItem());
-    currentPath += "\\" + createGroupWindow.GetGroupName();
-    ui->currentPath->setText(currentPath);
+//    currentPath += "\\" + createGroupWindow.GetGroupName();
+//    ui->currentPath->setText(currentPath);
+    ConfigureCurrentPathWidget(registry.FindPathForGroup(ui->registryTree->currentItem()) + "\\" + createdGroupName);
+
     on_currentPath_returnPressed();
 }
 
@@ -216,8 +218,17 @@ void MainWindow::on_removeGroupAction_triggered()
         return;
     }
 
-    CreateRegistryBranch(ui->registryTree->currentItem()->parent()->text(0), ui->registryTree->currentItem()->parent()->parent());
+    int indexToRemove;
+    auto* parentOfCurrentItem = ui->registryTree->currentItem()->parent();
+    for (indexToRemove = 0; indexToRemove < parentOfCurrentItem->childCount(); indexToRemove++)
+    {
+        if (ui->registryTree->currentItem()->text(0) == parentOfCurrentItem->child(indexToRemove)->text(0))
+        {
+            break;
+        }
+    }
 
-    //on_currentPath_returnPressed();
+    ui->registryTree->currentItem()->parent()->takeChild(indexToRemove);
+    ConfigureCurrentPathWidget(registry.FindPathForGroup(ui->registryTree->currentItem()));
 }
 
