@@ -1,38 +1,35 @@
 #include "../include/Registry.h"
 
-#include <windows.h>
-#include <winreg.h>
-
-void Registry::ParseRegistryBranch(QTreeWidgetItem *registryBranch, QSettings* registryBranchSettings, QIcon* groupIcon)
+void Registry::ParseRegistryBranch(QTreeWidgetItem *root, QSettings *settings, QIcon *icon)
 {
     static int depth = 0;
     static const int MAX_DEPTH = 2;
     depth++;
-    if (registryBranch->childCount() > 0)
+    if( root->childCount() > 0)
     {
-        for (int i = 0; i < registryBranch->childCount(); i++)
+        for (int i = 0; i < root->childCount(); i++)
         {
-            auto child = registryBranch->child(i);
+            auto child = root->child(i);
             if (child->childCount() > 0)
             {
                 break;
             }
 
-            registryBranchSettings->beginGroup(child->text(0));
-            ParseRegistryBranch(child, registryBranchSettings, groupIcon);
-            registryBranchSettings->endGroup();
+            settings->beginGroup(child->text(0));
+            ParseRegistryBranch(child, settings, icon);
+            settings->endGroup();
         }
     }
     else if (depth <= MAX_DEPTH)
     {
-        foreach (const auto& childGroup, registryBranchSettings->childGroups())
+        foreach (const auto& group, settings->childGroups())
         {
-            auto* childItem = new QTreeWidgetItem(QStringList() << childGroup);
-            childItem->setIcon(0, *groupIcon);
-            registryBranch->addChild(childItem);
-            registryBranchSettings->beginGroup(childGroup);
-            ParseRegistryBranch(childItem, registryBranchSettings, groupIcon);
-            registryBranchSettings->endGroup();
+            auto* item = new QTreeWidgetItem(QStringList() << group);
+            item->setIcon(0, *icon);
+            root->addChild(item);
+            settings->beginGroup(group);
+            ParseRegistryBranch(item, settings, icon);
+            settings->endGroup();
         }
     }
 

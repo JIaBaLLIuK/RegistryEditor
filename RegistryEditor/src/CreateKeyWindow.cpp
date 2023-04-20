@@ -53,7 +53,7 @@ void CreateKeyWindow::on_okButton_clicked()
         uint number = keyValue.toUInt(&isNumber);
         if (!isNumber)
         {
-            QMessageBox::warning(this, "Warning!", "DWORD key can't be a string!");
+            QMessageBox::warning(this, "Warning!", "DWORD key can't has a string value!");
             return;
         }
 

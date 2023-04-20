@@ -34,7 +34,8 @@ void MainWindow::ConfigureRegistryTreeWidget()
     QTreeWidgetItem* root = new QTreeWidgetItem(QStringList() << "Computer");
     root->setIcon(0, QIcon(":/img/computer_icon.png"));
     ui->registryTree->addTopLevelItem(root);
-    QStringList baseGroups = {
+    QStringList baseGroups =
+    {
         "HKEY_CLASSES_ROOT",
         "HKEY_CURRENT_USER",
         "HKEY_LOCAL_MACHINE",
@@ -43,7 +44,7 @@ void MainWindow::ConfigureRegistryTreeWidget()
 
     foreach (auto groupName, baseGroups)
     {
-        CreateRegistryBranch(groupName);
+        CreateRegistryBranch(groupName, ui->registryTree->topLevelItem(0));
     }
 }
 
@@ -61,6 +62,7 @@ void MainWindow::ConfigureGroupKeysWidget()
 void MainWindow::ConfigureCurrentPathWidget(QString path)
 {
     ui->currentPath->setText("Computer\\" + path);
+    ui->currentPath->setReadOnly(true);
 }
 
 void MainWindow::ConfigureCreateButtons(QString path)
@@ -89,36 +91,24 @@ void MainWindow::ConfigureRemoveKeyButton(QTableWidgetItem *currentItem)
     }
 }
 
-QTreeWidgetItem* MainWindow::CreateRegistryBranch(QString groupName)
+QTreeWidgetItem* MainWindow::CreateRegistryBranch(QString groupName, QTreeWidgetItem* parentItem)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem(QStringList() << groupName);
     QIcon icon(":/img/group_icon.ico");
     item->setIcon(0, icon);
-    ui->registryTree->topLevelItem(0)->addChild(item);
+    parentItem->addChild(item);
     QSettings settings(groupName, QSettings::NativeFormat);
     registry.ParseRegistryBranch(item, &settings, &icon);
     return item;
 }
 
-void MainWindow::RedrawRegistryBranch(QString baseGroupName)
-{
-    for (int i = 0; i < ui->registryTree->topLevelItem(0)->childCount(); i++)
-    {
-        if (ui->registryTree->topLevelItem(0)->child(i)->text(0) == baseGroupName)
-        {
-            ui->registryTree->topLevelItem(0)->takeChild(i);
-            ui->registryTree->topLevelItem(0)->addChild(CreateRegistryBranch(baseGroupName));
-        }
-    }
-}
-
 void MainWindow::on_registryTree_itemExpanded(QTreeWidgetItem *group)
 {
+    Q_UNUSED(group);
     ui->registryTree->resizeColumnToContents(0);
-    QSettings settings(registry.FindPathForGroup(group), QSettings::NativeFormat );
+    QSettings settings(registry.FindPathForGroup(group), QSettings::NativeFormat);
     QIcon icon(":/img/group_icon.ico");
     registry.ParseRegistryBranch(group, &settings, &icon);
-    ConfigureRemoveKeyButton();
 }
 
 void MainWindow::on_registryTree_itemClicked(QTreeWidgetItem *item, int column)
@@ -205,11 +195,9 @@ void MainWindow::on_createGroupAction_triggered()
     }
 
     auto currentPath = ui->currentPath->text();
+    CreateRegistryBranch(createdGroupName, ui->registryTree->currentItem());
     currentPath += "\\" + createGroupWindow.GetGroupName();
     ui->currentPath->setText(currentPath);
-
-    RedrawRegistryBranch(currentPath.split("\\")[1]);  // передача первого элемента списка (HKEY_...)
-
     on_currentPath_returnPressed();
 }
 
@@ -224,12 +212,12 @@ void MainWindow::on_removeGroupAction_triggered()
     currentPath = currentPathElements.join("\\");
     if (RegDeleteKeyEx(baseGroup, (wchar_t*)currentPath.utf16(), KEY_WOW64_64KEY, 0) != ERROR_SUCCESS)
     {
-        QMessageBox::warning(this, "Warning!", "Coludn't delete this group!");
+        QMessageBox::warning(this, "Warning!", "Couldn't delete this group!");
         return;
     }
 
-    /*
-    при удалении раздела открыть родительский раздел
-    */
+    CreateRegistryBranch(ui->registryTree->currentItem()->parent()->text(0), ui->registryTree->currentItem()->parent()->parent());
+
+    //on_currentPath_returnPressed();
 }
 
