@@ -2,6 +2,7 @@
 #include "../include/Registry.h"
 #include "../include/CreateGroupWindow.h"
 #include "../include/CreateKeyWindow.h"
+#include "../include/ChangeKeyWindow.h"
 #include "ui_mainwindow.h"
 
 #include <QMessageBox>
@@ -194,12 +195,8 @@ void MainWindow::on_createGroupAction_triggered()
         return;
     }
 
-    //auto currentPath = ui->currentPath->text();
     CreateRegistryBranch(createdGroupName, ui->registryTree->currentItem());
-//    currentPath += "\\" + createGroupWindow.GetGroupName();
-//    ui->currentPath->setText(currentPath);
     ConfigureCurrentPathWidget(registry.FindPathForGroup(ui->registryTree->currentItem()) + "\\" + createdGroupName);
-
     on_currentPath_returnPressed();
 }
 
@@ -230,5 +227,62 @@ void MainWindow::on_removeGroupAction_triggered()
 
     ui->registryTree->currentItem()->parent()->takeChild(indexToRemove);
     ConfigureCurrentPathWidget(registry.FindPathForGroup(ui->registryTree->currentItem()));
+}
+
+void MainWindow::on_groupKeys_cellDoubleClicked(int row, int column)
+{
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+    auto currentKeyName = ui->groupKeys->selectedItems()[0]->text();
+    ChangeKeyWindow window(currentKeyName, this);
+    QString valueType = ui->groupKeys->selectedItems()[1]->text();
+    if (valueType == "REG_SZ")
+    {
+        auto keyValue = ui->groupKeys->selectedItems()[2]->text();
+        window.SetStringValue(&keyValue);
+    }
+    else if (valueType == "REG_DWORD")
+    {
+        auto keyValue = ui->groupKeys->selectedItems()[2]->text().toUInt();
+        window.SetIntValue(&keyValue);
+    }
+    else if (valueType == "REG_QWORD")
+    {
+        auto keyValue = ui->groupKeys->selectedItems()[2]->text().toULongLong();
+        window.SetLongValue(&keyValue);
+    }
+    else
+    {
+        QMessageBox::warning(this, "Warning!", "Unable to change this key!");
+        return;
+    }
+
+    window.ConfigureLineEdits();
+    window.show();
+    window.exec();
+
+    auto currentItem = ui->registryTree->currentItem();
+    auto path = registry.FindPathForGroup(currentItem);
+    QSettings settings(path, QSettings::NativeFormat);
+    auto keyName = window.GetKeyName();
+    if (currentKeyName != keyName)
+    {
+        on_removeKeyAction_triggered();
+    }
+
+    if (valueType == "REG_SZ")
+    {
+        settings.setValue(keyName, *window.GetStringValue());
+    }
+    else if (valueType == "REG_DWORD")
+    {
+        settings.setValue(keyName, *window.GetIntValue());
+    }
+    else if (valueType == "REG_QWORD")
+    {
+        settings.setValue(keyName, *window.GetLongValue());
+    }
+
+    on_registryTree_itemClicked(currentItem, 0);
 }
 

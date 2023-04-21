@@ -5,7 +5,7 @@ void Registry::ParseRegistryBranch(QTreeWidgetItem *root, QSettings *settings, Q
     static int depth = 0;
     static const int MAX_DEPTH = 2;
     depth++;
-    if( root->childCount() > 0)
+    if(root->childCount() > 0)
     {
         for (int i = 0; i < root->childCount(); i++)
         {

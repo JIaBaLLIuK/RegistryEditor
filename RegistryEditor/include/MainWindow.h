@@ -25,6 +25,7 @@ private slots:
     void on_removeKeyAction_triggered();
     void on_createGroupAction_triggered();
     void on_removeGroupAction_triggered();
+    void on_groupKeys_cellDoubleClicked(int row, int column);
 
 private:
     void ConfigureMainWIndow();
