@@ -33,15 +33,16 @@ void CreateGroupWindow::on_okButton_clicked()
     if (groupName.isEmpty())
     {
         QMessageBox::critical(this, "Error!", "Group name can't be empty!");
+        return;
     }
 
-    auto pathElements = currentPath.split("\\");
-    pathElements.push_back(groupName);
-    HKEY baseGroup = Registry().GetGroupHkeyByName(pathElements[0]);
-    pathElements.pop_front();
+    auto pathElements = currentPath.split("\\");  // get all elements of the current path
+    pathElements.push_back(groupName);  // add new group name for the current path
+    HKEY baseGroup = Registry().GetGroupHkeyByName(pathElements[0]);  // curent group descriptor
+    pathElements.pop_front();  // remove "Computer" from the current path
     HKEY hKey;
     auto pathToNewGroup = pathElements.join("\\");
-    if (RegCreateKeyEx(baseGroup, (wchar_t*)pathToNewGroup.utf16(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS)
+    if (RegCreateKeyEx(baseGroup, (wchar_t*)pathToNewGroup.utf16(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) != ERROR_SUCCESS)  // attempt to create new group
     {
         QMessageBox::warning(this, "Warning!", "Couldn't create new group!");
         return;

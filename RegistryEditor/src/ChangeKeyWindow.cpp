@@ -28,8 +28,8 @@ QString ChangeKeyWindow::GetKeyName() const
 
 void ChangeKeyWindow::ConfigureLineEdits()
 {
-    ui->nameLineEdit->setText(keyName);
-    if (stringValue)
+    ui->nameLineEdit->setText(keyName);  // set selected key name
+    if (stringValue)  // set selected key value according to it type
     {
         ui->valueLineEdit->setText(*stringValue);
     }
@@ -75,15 +75,16 @@ void ChangeKeyWindow::SetStringValue(QString *newStringValue)
 
 void ChangeKeyWindow::on_okButton_clicked()
 {
-    auto newValue = ui->valueLineEdit->text();
-    auto newName = ui->nameLineEdit->text();
+    auto newValue = ui->valueLineEdit->text();  // new value for selected key
+    auto newName = ui->nameLineEdit->text();  // new name for selected key
     if (newValue.isEmpty() || newName.isEmpty())
     {
         QMessageBox::critical(this, "Error!", "Error! New name or value can't be empty!");
         return;
     }
 
-    keyName = newName;
+    keyName = newName;  // set new name
+    // set new value for the key according to it type
     if (stringValue)
     {
         *stringValue = newValue;
@@ -94,7 +95,7 @@ void ChangeKeyWindow::on_okButton_clicked()
         *intValue = newValue.toUInt(&isOk);
         if (!isOk)
         {
-            QMessageBox::warning(this, "Warning!", "DWORD key can't has a string value!");
+            QMessageBox::warning(this, "Warning!", "DWORD key can't has a string value!");  // if string was entered for dword key
             return;
         }
     }
@@ -104,7 +105,7 @@ void ChangeKeyWindow::on_okButton_clicked()
         *longValue = newValue.toULongLong(&isOk);
         if (!isOk)
         {
-            QMessageBox::warning(this, "Warning!", "QWORD key can't has a string value!");
+            QMessageBox::warning(this, "Warning!", "QWORD key can't has a string value!");   // if string was entered for qword key
             return;
         }
     }

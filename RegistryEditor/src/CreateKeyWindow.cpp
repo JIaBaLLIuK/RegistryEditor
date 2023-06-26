@@ -34,14 +34,14 @@ void CreateKeyWindow::ConfigureWindow()
 
 void CreateKeyWindow::on_okButton_clicked()
 {
-    keyName = ui->inputNameLineEdit->text();
-    keyValue = ui->inputValueLineEdit->text();
-    if (!ui->stringKey->isChecked() && !ui->intKey->isChecked() && !ui->longKey->isChecked())
+    keyName = ui->inputNameLineEdit->text();  // name for the new key
+    keyValue = ui->inputValueLineEdit->text();  // value for the new key
+    if (!ui->stringKey->isChecked() && !ui->intKey->isChecked() && !ui->longKey->isChecked())  // if type for the new key wasn't selected
     {
         QMessageBox::critical(this, "Error!", "You should choose key type!");
         return;
     }
-    else if (keyName.isEmpty() || keyValue.toString().isEmpty())
+    else if (keyName.isEmpty() || keyValue.toString().isEmpty())  // if name of value wasn't entered
     {
         QMessageBox::critical(this, "Error!", "Error! Name or value can't be empty!");
         return;
@@ -51,7 +51,7 @@ void CreateKeyWindow::on_okButton_clicked()
     if (ui->intKey->isChecked())
     {
         uint number = keyValue.toUInt(&isNumber);
-        if (!isNumber)
+        if (!isNumber)  // if string was entered for the dword key
         {
             QMessageBox::warning(this, "Warning!", "DWORD key can't has a string value!");
             return;
@@ -62,7 +62,7 @@ void CreateKeyWindow::on_okButton_clicked()
     else if (ui->longKey->isChecked())
     {
         qulonglong number = keyValue.toULongLong(&isNumber);
-        if (!isNumber)
+        if (!isNumber)  // if string was entered for the qword key
         {
             QMessageBox::warning(this, "Warning!", "QWORD key can't be a string!");
             return;
